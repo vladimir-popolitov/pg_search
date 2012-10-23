@@ -21,6 +21,12 @@ describe "an ActiveRecord model which includes PgSearch" do
       scope.should be_an ActiveRecord::Relation
     end
 
+    it "is chainable with itself" do
+      ModelWithPgSearch.pg_search_scope "matching_query", :against => []
+      scope = ModelWithPgSearch.matching_query("foo").matching_query("bar")
+      scope.should be_an ActiveRecord::Relation
+    end
+
     context "when passed a lambda" do
       it "builds a dynamic scope" do
         ModelWithPgSearch.pg_search_scope :search_title_or_content,
