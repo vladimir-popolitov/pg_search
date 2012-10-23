@@ -11,7 +11,7 @@ module PgSearch
     end
 
     def apply(scope)
-      scope.select("#{quoted_table_name}.*, (#{rank}) AS pg_search_rank").where(conditions).order("pg_search_rank DESC, #{order_within_rank}").joins(joins)
+      scope.select("#{quoted_table_name}.*, (#{rank}) AS pg_search_rank").where(conditions).order(order).joins(joins)
     end
 
     private
@@ -24,8 +24,8 @@ module PgSearch
       end.join(" OR ")
     end
 
-    def order_within_rank
-      config.order_within_rank || "#{primary_key} ASC"
+    def order
+      "pg_search_rank DESC, #{config.order_within_rank || "#{primary_key} ASC"}"
     end
 
     def primary_key
