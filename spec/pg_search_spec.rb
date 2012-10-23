@@ -21,12 +21,6 @@ describe "an ActiveRecord model which includes PgSearch" do
       scope.should be_an ActiveRecord::Relation
     end
 
-    it "is chainable with itself" do
-      ModelWithPgSearch.pg_search_scope "matching_query", :against => []
-      scope = ModelWithPgSearch.matching_query("foo").matching_query("bar")
-      scope.should be_an ActiveRecord::Relation
-    end
-
     context "when passed a lambda" do
       it "builds a dynamic scope" do
         ModelWithPgSearch.pg_search_scope :search_title_or_content,
@@ -250,6 +244,24 @@ describe "an ActiveRecord model which includes PgSearch" do
         foo = ModelWithPgSearch.create!(:content => "foo")
         not_a_string = stub(:to_s => "foo")
         ModelWithPgSearch.search_content(not_a_string).should == [foo]
+      end
+
+      context "when chained onto itself" do
+        it "returns a scope" do
+          scope = ModelWithPgSearch.search_content("foo").search_content("bar")
+          scope.should be_an ActiveRecord::Relation
+        end
+
+        it "returns records that match both queries" do
+          included = [ModelWithPgSearch.create!(:content => 'foo bar'),
+                      ModelWithPgSearch.create!(:content => 'bar foo')]
+          excluded = [ModelWithPgSearch.create!(:content => 'foo'),
+                      ModelWithPgSearch.create!(:content => 'bar')]
+
+          results = ModelWithPgSearch.search_content("foo").search_content("bar")
+          results.should =~ included
+          results.should_not include(*excluded)
+        end
       end
 
       context "when the column is not text" do
