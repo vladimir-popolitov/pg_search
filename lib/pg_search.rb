@@ -35,7 +35,7 @@ module PgSearch
       method_proc = lambda do |*args|
         config = Configuration.new(options_proc.call(*args), self)
         scope_options = ScopeOptions.new(config)
-        scope_options.apply(self)
+        scope_options.apply(self.scoped)
       end
 
       if respond_to?(:define_singleton_method)
