@@ -136,6 +136,57 @@ describe "an ActiveRecord model which includes PgSearch" do
         ModelWithPgSearch.pg_search_scope :search_content, :against => :content
       end
 
+      context "when chained after a select() scope" do
+        it "honors the select" do
+          included = ModelWithPgSearch.create!(content: 'foo', title: 'bar')
+          excluded = ModelWithPgSearch.create!(content: 'bar', title: 'foo')
+
+          results = ModelWithPgSearch.select('id, title').search_content('foo')
+
+          results.should include(included)
+          results.should_not include(excluded)
+
+          results.first.attributes.key?('content').should be_false
+
+          results.select { |record| record.title == "bar" }.should == [included]
+          results.select { |record| record.title != "bar" }.should be_empty
+        end
+      end
+
+      context "when chained before a select() scope" do
+        it "honors the select" do
+          included = ModelWithPgSearch.create!(content: 'foo', title: 'bar')
+          excluded = ModelWithPgSearch.create!(content: 'bar', title: 'foo')
+
+          results = ModelWithPgSearch.search_content('foo').select('id, title')
+
+          results.should include(included)
+          results.should_not include(excluded)
+
+          results.first.attributes.key?('content').should be_false
+
+          results.select { |record| record.title == "bar" }.should == [included]
+          results.select { |record| record.title != "bar" }.should be_empty
+        end
+      end
+
+      context "when surrouned by select() scopes" do
+        it "honors the select" do
+          included = ModelWithPgSearch.create!(content: 'foo', title: 'bar')
+          excluded = ModelWithPgSearch.create!(content: 'bar', title: 'foo')
+
+          results = ModelWithPgSearch.select('id').search_content('foo').select('title')
+
+          results.should include(included)
+          results.should_not include(excluded)
+
+          results.first.attributes.key?('content').should be_false
+
+          results.select { |record| record.title == "bar" }.should == [included]
+          results.select { |record| record.title != "bar" }.should be_empty
+        end
+      end
+
       it "returns an empty array when a blank query is passed in" do
         ModelWithPgSearch.create!(:content => 'foo')
 
