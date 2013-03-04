@@ -16,7 +16,7 @@ module PgSearch
       end
 
       def conditions
-        ["(#{tsdocument}) @@ (#{tsquery})", interpolations]
+        Arel::Nodes::InfixOperation.new("@@", tsdocument, tsquery)
       end
 
       def rank
@@ -34,7 +34,7 @@ module PgSearch
       def tsquery_for_term(term)
         sanitized_term = term.gsub(DISALLOWED_TSQUERY_CHARACTERS, " ")
 
-        term_sql = normalize(connection.quote(sanitized_term))
+        term_sql = normalize(sanitized_term)
 
         # After this, the SQL expression evaluates to a string containing the term surrounded by single-quotes.
         # If :prefix is true, then the term will also have :* appended to the end.
@@ -45,14 +45,21 @@ module PgSearch
           (connection.quote(':*') if options[:prefix])
         ].compact.join(" || ")
 
-        "to_tsquery(:dictionary, #{tsquery_sql})"
+        Arel::Nodes::NamedFunction.new("to_tsquery", [dictionary.to_s, tsquery_sql])
       end
 
       def tsquery
         return "''" if query.blank?
         query_terms = query.split(" ").compact
         tsquery_terms = query_terms.map { |term| tsquery_for_term(term) }
-        tsquery_terms.join(options[:any_word] ? ' || ' : ' && ')
+
+        tsquery_terms.inject do |accumulator, term|
+          if options[:any_word]
+            accumulator.or(term)
+          else
+            accumulator.and(term)
+          end
+        end
       end
 
       def tsdocument
