@@ -45,7 +45,7 @@ module PgSearch
           (connection.quote(':*') if options[:prefix])
         ].compact.join(" || ")
 
-        Arel::Nodes::NamedFunction.new("to_tsquery", [dictionary.to_s, tsquery_sql])
+        Arel::Nodes::NamedFunction.new("to_tsquery", [dictionary.to_s, tsquery_sql]).to_sql
       end
 
       def tsquery
