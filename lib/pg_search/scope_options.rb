@@ -23,9 +23,15 @@ module PgSearch
     delegate :connection, :quoted_table_name, :to => :@model
 
     def conditions
+<<<<<<< Updated upstream
       config.features.map do |feature_name, feature_options|
         feature_for(feature_name).conditions.to_sql
       end.join(" OR ")
+=======
+      # conditions = config.features.map do |feature_name, feature_options|
+        # feature_for(feature_name).conditions
+      # end
+>>>>>>> Stashed changes
     end
 
     def order_within_rank
