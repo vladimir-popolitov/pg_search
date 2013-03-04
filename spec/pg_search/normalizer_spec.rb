@@ -8,7 +8,7 @@ describe PgSearch::Normalizer do
           config = stub("config", :ignore => [:accents], :postgresql_version => 90000)
 
           normalizer = PgSearch::Normalizer.new(config)
-          normalizer.add_normalization("foo").should == "unaccent(foo)"
+          normalizer.add_normalization("foo").to_sql.should == "unaccent(foo)"
         end
 
         context "when a custom unaccent function is specified" do
@@ -18,7 +18,7 @@ describe PgSearch::Normalizer do
             config = stub("config", :ignore => [:accents], :postgresql_version => 90000)
 
             normalizer = PgSearch::Normalizer.new(config)
-            normalizer.add_normalization("foo").should == "my_unaccent(foo)"
+            normalizer.add_normalization("foo").to_sql.should == "my_unaccent(foo)"
           end
         end
       end
