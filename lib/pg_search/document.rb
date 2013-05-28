@@ -21,7 +21,8 @@ module PgSearch
         {:query => args.first}.merge(PgSearch.multisearch_options)
       end
 
-      {:against => :content}.merge(options)
+      options.merge({:against => :content})
+      #{:against => :content}.merge(options)
     }
 
     private
