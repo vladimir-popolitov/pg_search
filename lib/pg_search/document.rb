@@ -21,7 +21,15 @@ module PgSearch
         {:query => args.first}.merge(PgSearch.multisearch_options)
       end
 
-      options.merge({:against => :content})
+      options.merge({
+        :against => :content,
+        :using => {
+  					:tsearch => {
+							:dictionary => "russian",
+							:tsvector_column => "content"
+						}
+					}
+      })
       #{:against => :content}.merge(options)
     }
 
