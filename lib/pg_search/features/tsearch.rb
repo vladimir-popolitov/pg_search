@@ -59,10 +59,15 @@ module PgSearch
           "#{quoted_table_name}.#{column_name}"
         else
           columns.map do |search_column|
-            tsvector = Arel::Nodes::NamedFunction.new(
-              "to_tsvector",
-              [dictionary, Arel.sql(normalize(search_column.to_sql))]
-            ).to_sql
+            tsvector = nil
+            if search_column.column_name =~ /to_tsvector/
+              tsvector = normalize(search_column.column_name)
+            else
+              tsvector = Arel::Nodes::NamedFunction.new(
+                "to_tsvector",
+                [dictionary, Arel.sql(normalize(search_column.to_sql))]
+              ).to_sql
+            end
 
             if search_column.weight.nil?
               tsvector
