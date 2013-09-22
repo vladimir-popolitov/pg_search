@@ -27,7 +27,11 @@ module PgSearch
       end
 
       def column_name
-        @connection.quote_column_name(@column_name)
+        if @column_name =~ /to_tsvector/
+          @column_name
+        else
+          @connection.quote_column_name(@column_name)
+        end
       end
 
       def expression
