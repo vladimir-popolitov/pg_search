@@ -19,19 +19,19 @@ module PgSearch
       def to_sql
         "coalesce(#{expression}::text, '')"
       end
-
-      private
-
-      def table_name
-        @model.quoted_table_name
-      end
-
+      
       def column_name
         if @column_name =~ /to_tsvector/
           @column_name
         else
           @connection.quote_column_name(@column_name)
         end
+      end
+
+      private
+
+      def table_name
+        @model.quoted_table_name
       end
 
       def expression
