@@ -60,7 +60,7 @@ module PgSearch
         else
           columns.map do |search_column|
             tsvector = nil
-            if search_column.column_name =~ /to_tsvector/
+            if search_column.column_name =~ /to_tsvector/ || search_column.column_name =~ /tsvector_index/
               tsvector = normalize(search_column.column_name)
             else
               tsvector = Arel::Nodes::NamedFunction.new(
