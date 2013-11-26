@@ -49,8 +49,22 @@ module PgSearch
       def tsquery
         return "''" if query.blank?
         query_terms = query.split(" ").compact
-        tsquery_terms = query_terms.map { |term| tsquery_for_term(term) }
-        tsquery_terms.join(options[:any_word] ? ' || ' : ' && ')
+        tsquery_terms = []
+        required = []
+        query_terms.each do |term|
+          if term.index('categoryN').nil?
+            tsquery_terms.push(tsquery_for_term(term))
+          else
+            required.push(tsquery_for_term(term))
+          end
+        end
+        #tsquery_terms = query_terms.map { |term| tsquery_for_term(term) }
+        
+        if required.length > 0
+          '(' + tsquery_terms.join(options[:any_word] ? ' || ' : ' && ') + ') && ' +  required.join(' && ')
+        else
+          tsquery_terms.join(options[:any_word] ? ' || ' : ' && ')
+        end
       end
 
       def tsdocument
