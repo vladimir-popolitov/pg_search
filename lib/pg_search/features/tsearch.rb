@@ -61,7 +61,7 @@ module PgSearch
         #tsquery_terms = query_terms.map { |term| tsquery_for_term(term) }
         
         if required.length > 0
-          '(' + tsquery_terms.join(options[:any_word] ? ' || ' : ' && ') + ') && ' +  required.join(' && ')
+          '(' + tsquery_terms.join(options[:any_word] ? ' || ' : ' && ') + ') && (' +  required.join(' || ') + ')'
         else
           tsquery_terms.join(options[:any_word] ? ' || ' : ' && ')
         end
