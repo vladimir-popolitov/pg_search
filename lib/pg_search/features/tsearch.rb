@@ -106,7 +106,7 @@ module PgSearch
       end
 
       def tsearch_rank
-        "ts_rank((#{tsdocument}), (#{tsquery}), #{normalization})"
+        "ts_rank((#{tsdocument}), (#{tsquery}), #{normalization}) * #{quoted_table_name}.#{connection.quote('promotion')}"
       end
 
       def dictionary
