@@ -53,7 +53,13 @@ module PgSearch
         required = []
         query_terms.each do |term|
           if term.index('categoryN').nil?
-            tsquery_terms.push(tsquery_for_term(term))
+          	if(term.include?('+'))
+          		subterms = term.split("+").compact
+          		subterms.map! {|e| tsquery_for_term(term) }
+          		tsquery_terms.push("(" + subterms.join(' && ') + ")")
+          	else
+            	tsquery_terms.push(tsquery_for_term(term))
+            end
           else
             required.push(tsquery_for_term(term))
           end
